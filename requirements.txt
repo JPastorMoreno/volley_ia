@@ -1,0 +1,13 @@
+fastapi
+uvicorn
+python-multipart
+opencv-python-headless
+ultralytics
+supervision
+numpy
+pillow
+celery
+redis
+gradio
+six>=1.16.0
+deep_sort_realtime

@@ -1,0 +1,43 @@
+version: "3.9"
+
+services:
+  api:
+    build: .
+    container_name: volleyball_api
+    ports:
+      - "8000:8000"
+      - "7860:7860"
+    volumes:
+      - ./app:/app
+      - ./data:/data
+    command: "uvicorn main:app --host 0.0.0.0 --reload"
+    depends_on:
+      - redis
+    # deploy:
+    #   resources:
+    #     reservations:
+    #       devices:
+    #         - capabilities: [gpu]
+    # environment:
+    #   - NVIDIA_VISIBLE_DEVICES=all
+
+  worker:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: analysis_worker
+    command: celery -A analysis_worker.worker worker --loglevel=info  --pool=threads --concurrency=1
+    runtime: nvidia
+    environment:
+      - NVIDIA_VISIBLE_DEVICES=all
+    volumes:
+      - ./app:/app
+      - ./analysis_worker:/app/analysis_worker
+
+    depends_on:
+      - redis
+    
+
+  redis:
+    image: redis:alpine
+    container_name: redis
